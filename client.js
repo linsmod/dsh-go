@@ -1,8 +1,8 @@
 // Client half of the dsh-go-usage plugin.
 // Hand-written browser bundle in the lazy-CJS format the client module loader
 // expects: it only REGISTERS the factory; the body runs at materialization.
-// It mounts the opencodeUsage Remote, registers a settings.section sidebar
-// entry ("OpenCode GO 用量") and the composer dock mini-line, and renders
+// It mounts the opencodeUsage Remote, registers a main-sidebar panel
+// ("OpenCode GO 用量") and the composer dock mini-line, and renders
 // the usage page / dock readout.
 window.__ModuleLoader__.load({
   id: "dsh-go-usage",
@@ -343,6 +343,24 @@ window.__ModuleLoader__.load({
       );
     }
 
+    function UsagePanelIcon(props) {
+      const size = props && typeof props.size === "number" ? props.size : 18;
+      return React.createElement("svg", {
+        width: size, height: size, viewBox: "0 0 24 24", fill: "none",
+        "aria-hidden": "true", style: { display: "block" }
+      },
+        React.createElement("circle", { cx: 12, cy: 12, r: 8.25, stroke: "currentColor", strokeWidth: 1.7, opacity: 0.35 }),
+        React.createElement("path", { d: "M12 3.75A8.25 8.25 0 0 1 20.25 12", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round" }),
+        React.createElement("circle", { cx: 12, cy: 12, r: 2.1, fill: "currentColor" })
+      );
+    }
+
+    function UsagePanel() {
+      return React.createElement("div", {
+        style: { height: "100%", minHeight: 0, overflowY: "auto", boxSizing: "border-box", padding: "24px 28px" }
+      }, React.createElement(UsagePage, {}));
+    }
+
     function UsagePage(props) {
       const styles = useStyles();
       const [state, setState] = React.useState({ kind: "loading" });
@@ -606,9 +624,13 @@ window.__ModuleLoader__.load({
         };
       });
 
-      slots.inject("settings.section", () => slots.register(
-        { name: "settings.section", id: "opencode-go-usage", order: 40, label: () => "OpenCode GO 用量" },
-        (props) => React.createElement(UsagePage, {})
+      slots.inject("main", () => slots.register(
+        { name: "main", key: "opencode-go-usage" },
+        () => React.createElement(UsagePanel, {})
+      ));
+      slots.inject("sidebar.panellist", () => slots.register(
+        { name: "sidebar.panellist", id: "opencode-go-usage", order: 15, label: () => "OpenCode GO 用量" },
+        (props) => React.createElement(UsagePanelIcon, props || {})
       ));
       slots.inject("conversation.composer.dock", () => slots.register(
         { name: "conversation.composer.dock", id: "opencode-go-dock", order: 5 },
