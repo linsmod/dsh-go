@@ -588,7 +588,21 @@ window.__ModuleLoader__.load({
       return result && result.value !== undefined ? result.value : result;
     };
 
+    // Local UI tweak: the core ToolRow only colors +N/-M while hovered or
+    // expanded. Force the diff counts to keep their semantic colors at rest.
+    const DIFF_STAT_COLOR_CSS = '[class*="diffAdded"]{color:var(--dsw-alias-state-success-primary)!important}' + '[class*="diffRemoved"]{color:var(--dsw-alias-state-error-primary)!important}';
+    const DIFF_STAT_STYLE_ID = "dsh-go-usage/diff-stat-colors";
+    function injectDiffStatColors() {
+      if (typeof document === "undefined") return;
+      if (document.querySelector('style[data-plugin-css="' + DIFF_STAT_STYLE_ID + '"]') !== null) return;
+      const tag = document.createElement("style");
+      tag.dataset.pluginCss = DIFF_STAT_STYLE_ID;
+      tag.textContent = DIFF_STAT_COLOR_CSS;
+      document.head.appendChild(tag);
+    }
+
     function apply(ctx) {
+      injectDiffStatColors();
       ctxRef = ctx;
       mountReady = ctx.remote.$mount(TYPERT_REMOTE);
       timer = ctx.get("timer");
